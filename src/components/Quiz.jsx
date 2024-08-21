@@ -1,36 +1,20 @@
 import React, { useCallback, useState } from "react";
 import questions from "../questions";
-import completeImg from "../assets/quiz-complete.png";
 import Question from "./Question";
+import Summary from "./Summary";
 
 export default function Quiz() {
   const [userAnswers, setUserAnswers] = useState([]);
-  const [answerState, setAnswerState] = useState("");
 
-  const activeQuestionIndex =
-    answerState === "" ? userAnswers.length : userAnswers.length - 1;
+  const activeQuestionIndex = userAnswers.length;
 
   const quizIsComplete = activeQuestionIndex === questions.length;
 
-  const handleSelectAnswer = useCallback(
-    (selectAnswer) => {
-      setAnswerState("answered");
-      setUserAnswers((prevAnswers) => {
-        return [...prevAnswers, selectAnswer];
-      });
-      setTimeout(() => {
-        if (selectAnswer === questions[activeQuestionIndex].answers[0]) {
-          setAnswerState("correct");
-        } else {
-          setAnswerState("wrong");
-        }
-        setTimeout(() => {
-          setAnswerState("");
-        }, 2000);
-      }, 1000);
-    },
-    [activeQuestionIndex]
-  );
+  const handleSelectAnswer = useCallback((selectAnswer) => {
+    setUserAnswers((prevAnswers) => {
+      return [...prevAnswers, selectAnswer];
+    });
+  }, []);
 
   const handleSkipAnswer = useCallback(
     () => handleSelectAnswer(null),
@@ -38,24 +22,16 @@ export default function Quiz() {
   );
 
   if (quizIsComplete) {
-    return (
-      <div id="summary">
-        <img src={completeImg} alt="complete" />
-        <h2>Quiz is completed!</h2>
-      </div>
-    );
+    return <Summary userAnswers={userAnswers} />;
   }
 
   return (
     <div id="quiz">
       <Question
+        activeIndex={activeQuestionIndex}
         key={activeQuestionIndex}
-        questionText={questions[activeQuestionIndex].text}
-        answers={questions[activeQuestionIndex].answers}
         onSelectAnswer={handleSelectAnswer}
-        answerState={answerState}
         onSkip={handleSkipAnswer}
-        selectedAnswer={userAnswers[userAnswers.length - 1]}
       />
     </div>
   );
